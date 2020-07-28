@@ -1,0 +1,5 @@
+#安装/更新
+source <(curl -sL https://git.io/trojan-install)
+
+#卸载
+source <(curl -sL https://git.io/trojan-install) --remove
