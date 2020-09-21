@@ -146,31 +146,37 @@ http {
     }
 }
 EOF
-	#设置伪装站
-	rm -rf /usr/share/nginx/html/*
-	cd /usr/share/nginx/html/
-	wget https://github.com/V2RaySSR/Trojan/raw/master/web.zip
-    	unzip web.zip
-	systemctl restart nginx.service
-	#申请https证书
-	mkdir /usr/src/trojan-cert
-	curl https://get.acme.sh | sh
-	~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
-    	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
-        --key-file   /usr/src/trojan-cert/private.key \
-        --fullchain-file /usr/src/trojan-cert/fullchain.cer \
-        --reloadcmd  "systemctl force-reload  nginx.service"
-	if test -s /usr/src/trojan-cert/fullchain.cer; then
-        cd /usr/src
-	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
-	wget https://github.com/trojan-gfw/trojan/releases/download/v1.14.0/trojan-1.14.0-linux-amd64.tar.xz
-	tar xf trojan-1.*
-	#下载trojan客户端
-	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-	unzip trojan-cli.zip
-	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
-	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
-	cat > /usr/src/trojan-cli/config.json <<-EOF
+	
+#设置伪装站
+#rm -rf /usr/share/nginx/html/*
+#cd /usr/share/nginx/html/
+#wget https://github.com/V2RaySSR/Trojan/raw/master/web.zip
+#unzip web.zip
+#systemctl restart nginx.service
+	
+	
+#申请https证书
+mkdir /usr/src/trojan-cert
+curl https://get.acme.sh | sh
+~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
+~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
+--key-file   /usr/src/trojan-cert/private.key \
+--fullchain-file /usr/src/trojan-cert/fullchain.cer \
+--reloadcmd  "systemctl force-reload  nginx.service"
+if test -s /usr/src/trojan-cert/fullchain.cer; then
+cd /usr/src
+#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
+wget https://github.com/trojan-gfw/trojan/releases/download/v1.14.0/trojan-1.14.0-linux-amd64.tar.xz
+tar xf trojan-1.*
+	
+	
+#下载trojan客户端
+wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
+unzip trojan-cli.zip
+cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
+#trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
+trojan_passwd=Spk50928176
+cat > /usr/src/trojan-cli/config.json <<-EOF
 {
     "run_type": "client",
     "local_addr": "127.0.0.1",
@@ -203,8 +209,10 @@ EOF
     }
 }
 EOF
-	rm -rf /usr/src/trojan/server.conf
-	cat > /usr/src/trojan/server.conf <<-EOF
+
+
+rm -rf /usr/src/trojan/server.conf
+cat > /usr/src/trojan/server.conf <<-EOF
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
@@ -247,13 +255,15 @@ EOF
     }
 }
 EOF
-	cd /usr/src/trojan-cli/
-	zip -q -r trojan-cli.zip /usr/src/trojan-cli/
-	trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
-	mkdir /usr/share/nginx/html/${trojan_path}
-	mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/
-	#增加启动脚本
 	
+cd /usr/src/trojan-cli/
+zip -q -r trojan-cli.zip /usr/src/trojan-cli/
+trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
+mkdir /usr/share/nginx/html/${trojan_path}
+mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/
+	
+	
+#增加启动脚本	
 cat > ${systempwd}trojan.service <<-EOF
 [Unit]  
 Description=trojan  
@@ -266,7 +276,7 @@ ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf"
 ExecReload=  
 ExecStop=/usr/src/trojan/trojan  
 PrivateTmp=true  
-   
+
 [Install]  
 WantedBy=multi-user.target
 EOF
