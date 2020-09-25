@@ -105,8 +105,11 @@ elif [ "$release" == "ubuntu" ]; then
     systemctl disable ufw
     apt-get update
 fi
-$systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
+
+# 如果已经安装了 nginx 就不安装
+#$systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
 systemctl enable nginx.service
+
 green "======================="
 yellow "请输入绑定到本VPS的域名"
 green "======================="
@@ -118,6 +121,8 @@ if [ $real_addr == $local_addr ] ; then
 	green "       域名解析正常，开始安装trojan"
 	green "=========================================="
 	sleep 1s
+
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf_ORIGIN
 cat > /etc/nginx/nginx.conf <<-EOF
 user  root;
 worker_processes  1;
