@@ -111,6 +111,11 @@ fi
 systemctl enable nginx.service
 
 green "======================="
+yellow "请输入trojan密码"
+green "======================="
+read trojan_passwd
+
+green "======================="
 yellow "请输入绑定到本VPS的域名"
 green "======================="
 read your_domain
@@ -197,6 +202,7 @@ unzip trojan-cli.zip
 cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
 #trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 trojan_passwd=Spk50928176
+
 cat > /usr/src/trojan-cli/config.json <<-EOF
 {
     "run_type": "client",
