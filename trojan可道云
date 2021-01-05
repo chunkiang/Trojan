@@ -149,7 +149,7 @@ if [ $real_addr == $local_addr ] ; then
 	sleep 1s
 	
 	#配置nginx
-	cat > /etc/nginx/nginx.conf <<-EOF
+	cat > /etc/nginx/sites-available/$your_domain.conf <<-EOF
 	user  root;
 	worker_processes  1;
 	error_log  /var/log/nginx/error.log warn;
@@ -193,6 +193,8 @@ if [ $real_addr == $local_addr ] ; then
 	}
 	EOF
 	
+	ln -s /etc/nginx/sites-available/$your_domain.conf /etc/nginx/sites-enabled/
+	
 	#设置伪装站
 	#rm -rf /usr/share/nginx/html/*
 	#cd /usr/share/nginx/html/
@@ -209,6 +211,7 @@ if [ $real_addr == $local_addr ] ; then
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file /usr/src/trojan-cert/fullchain.cer
+	
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
 	systemctl start nginx
         
